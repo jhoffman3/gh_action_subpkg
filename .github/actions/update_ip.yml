@@ -1,0 +1,42 @@
+name: Update IP Address and Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      ip_address:
+        description: 'IP address to replace in files'
+        required: true
+        type: string
+
+jobs:
+  update_and_package:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Replace IP address in files
+      run: |
+        IP_ADDRESS="${{ github.event.inputs.ip_address }}"
+        # Replace placeholder in both files
+        sed -i "s/IP4_ADDRESS_HERE/$IP_ADDRESS/g" env.ts
+        sed -i "s/IP4_ADDRESS_HERE/$IP_ADDRESS/g" someproxy.txt
+
+    - name: Package modified files
+      run: |
+        zip -r modified_files.zip env.ts someproxy.txt
+        echo "Packaged modified files into modified_files.zip"
+
+    - name: Upload zip as GitHub artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: modified_files
+        path: modified_files.zip
+
+    - name: Display download link in log
+      run: |
+        REPO_NAME="${{ github.repository }}"
+        RUN_ID="${{ github.run_id }}"
+        echo "Download the zip file from this location:"
+        echo "https://github.com/$REPO_NAME/actions/runs/$RUN_ID"
