@@ -1,0 +1,34 @@
+name: Dump Environment Variables
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'GitHub Environment Name'
+        required: true
+        type: string
+
+jobs:
+  dump-env:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    steps:
+      - name: Dump all environment variables to log
+        run: printenv
+
+      - name: Dump all environment variables to file
+        run: printenv > env_dump.txt
+
+      - name: Upload environment dump as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-dump
+          path: env_dump.txt
+
+      - name: Print clean up instructions
+        run: |
+          echo "\n*** CLEAN UP INSTRUCTIONS ***"
+          echo "1. Delete this workflow run from the Actions tab to remove logs containing secrets."
+          echo "2. Delete the 'env-dump' artifact from the workflow run page."
+          echo "3. Consider removing this workflow file from your repository if no longer needed."
+          echo "4. Rotate any secrets if you believe they may have been exposed."
