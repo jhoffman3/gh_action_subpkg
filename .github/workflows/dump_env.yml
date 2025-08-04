@@ -1,4 +1,4 @@
-name: Dump Environment Variables
+name: Dump Environment2 Variables
 
 on:
   workflow_dispatch:
